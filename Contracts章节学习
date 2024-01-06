@@ -4,3 +4,17 @@
 1、智能合约构造函数：
   关键字constructor
 2、mapping数据的存储位置只能为storage,且只能在状态变量位置进行定义，函数内部的mapping必须要引用状态变量的map，不能动态创建
+
+数组
+函数中的引用类型数组，如果是storage，那么只能作为指针，引用状态变量
+如果是memory，针对指定长度的数组，可以直接定义为：
+uint[2] memory arr2
+也可以定义后进行初始化：
+uint[2] memory arr2=[uint(1),2]
+针对变长的数组，则在创建需要指定长度：
+uint[] memory arr=new uint[](12);
+也可以定义为动态长度：
+uint changebleLen=12;
+uint[] memory arr=new uint[](changebleLen);
+但是不能在定义的同时进行初始化，如下情况会报错：
+uint[] memory arr2=[uint(1),2]
