@@ -1,10 +1,13 @@
 一、数据类型-合约
 合约包括状态变量、函数、修饰符等，其中状态变量都是存储在区块链上的数据；函数是无状态的，所以其中不可能定义原生的storage变量（只能作为指针，引用状态变量）？还是说可以定义storage变量（脱离外部定义的状态变量），然后赋值给状态变量，但storage之间赋值不进行内容拷贝，状态变量引用了函数内部变量，由此来看，这是不允许的，
 1、智能合约构造函数：
-  关键字constructor，不需要指定修饰符。
+  关键字constructor()，不需要指定访问权限修饰符，但是如果想要在创建合约的时候顺便携带以太坊余额，那么要在构造函数后面标识为payable，比如：
+  constructor() payable{}
+  在合约创建阶段，还无法访问receiver等payable的函数，所以只能在constructor上定义payable
+2、modifier：
+  多个modifier之间用空格分隔
 
-
-二、应用数据类型-mapping
+二、引用数据类型-mapping
 2、mapping数据的存储位置只能为storage,且只能在状态变量位置进行定义，函数内部的mapping必须要引用状态变量的map，不能动态创建
 
 三、引用数据类型-数组
@@ -20,3 +23,7 @@ uint changebleLen=12;
 uint[] memory arr=new uint[](changebleLen);
 但是不能在定义的同时进行初始化，如下情况会报错：
 uint[] memory arr2=[uint(1),2]
+
+三、值类型-address
+1、将address转换为payable的智能合约时，需要显式的将地址转换为payable：
+creator=TokenCreator(payable(msg.sender));
