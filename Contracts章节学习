@@ -5,7 +5,35 @@
   constructor() payable{}
   在合约创建阶段，还无法访问receiver等payable的函数，所以只能在constructor上定义payable
 2、modifier：
-  多个modifier之间用空格分隔
+  多个modifier之间用空格分隔；
+  在modifier中如果函数体在中间位置，那么即使是函数已经return，但是modifier的后续流程仍然会继续，比如：
+  contract Mutex {
+      bool locked;
+      modifier noReentrancy() {
+          require(
+              !locked,
+              "Reentrant call."
+          );
+          locked = true;
+          _;
+          locked = false;
+      }
+  
+      /// This function is protected by a mutex, which means that
+      /// reentrant calls from within `msg.sender.call` cannot call `f` again.
+      /// The `return 7` statement assigns 7 to the return value but still
+      /// executes the statement `locked = false` in the modifier.
+      function f() public noReentrancy returns (uint) {
+          (bool success,) = msg.sender.call("");
+          require(success);
+          return 7;
+      }
+  }
+  其中函数f在执行完后，会继续执行locked = false;
+
+3、constant和immutable
+  上述两种类型都是不可变类型，即内容一经赋值不能再改变，较普通类型变量，都会节省gas，两者区别在于：1）constant在定义的时候就要指定内容（值或者表达式计算值，其中表达式赋值方式不允许访问状态变量、区块数据、执行时的环境参数以及调用外部合约函数，此处有疑问，调用库函数可以么？？？，另外还有一种情况针对memory allocaltion有无影响的情况？？？），而immutable可以在构造函数中指定内容；2）immutable变量会默认保留32字节，而constant则会根据最小匹配的数据类型，因此constant比immutable更节省空间。
+  只有值类型可以声明为constant和immutable，引用类型中只有string可以声明为constant，其他情况均不允许。
 
 二、引用数据类型-mapping
 2、mapping数据的存储位置只能为storage,且只能在状态变量位置进行定义，函数内部的mapping必须要引用状态变量的map，不能动态创建
